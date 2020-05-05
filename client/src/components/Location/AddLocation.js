@@ -4,6 +4,8 @@ import { withRouter, NavLink } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
 import actions from "../../actions/index"
 import './AddLocation.css';
+import { toast, ToastContainer } from 'react-toastify';
+
 
 
 
@@ -38,7 +40,6 @@ class Modal extends Component {
 
     saveLocation = () => {
         this.validateData(() => {
-            //    console.log("Location Data  ", this.state)
             let data = {
                 "location": this.state.location,
                 "addressLine1": this.state.addressLine1,
@@ -52,27 +53,76 @@ class Modal extends Component {
                 "facility": this.state.facility,
                 "pool": this.state.pool,
             }
-            this.props.locationAction.addLocation(data, (response) => {
-                this.props.getLocationListing()
-            })
+            this.props.handleClose()
+
+            if (this.props.locationId) {
+                this.props.locationAction.updateLocation(this.props.locationId, data, (output) => {
+                    if (output.error) {
+                        toast.error(output.message, {
+                            position: toast.POSITION.TOP_RIGHT
+                        });
+                    } else {
+                        toast.success(output.message, {
+                            position: toast.POSITION.TOP_RIGHT
+                        });
+                    }
+                    this.props.getLocationListing()
+                })
+            } else {
+                this.props.locationAction.addLocation(data, (output) => {
+                    if (output.error) {
+                        toast.error(output.message, {
+                            position: toast.POSITION.TOP_RIGHT
+                        });
+                    } else {
+                        toast.success(output.message, {
+                            position: toast.POSITION.TOP_RIGHT
+                        });
+                    }
+                    this.props.getLocationListing()
+                })
+            }
+
+
         })
     }
 
     getLocationData = (id) => {
-        
+
         this.props.locationAction.getLocationData(id, (response) => {
+
+            if (!response.data.error && response.data && response.data.length) {
+                let locationData = response.data[0];
+                let data = {
+                    "location": locationData.location,
+                    "addressLine1": locationData.addressLine1,
+                    "suiteNo": locationData.suiteNo,
+                    "addressLine2": locationData.addressLine2,
+                    "city": locationData.city,
+                    "state": locationData.state,
+                    "zipCode": locationData.zipCode,
+                    "phoneNo": locationData.phoneNo,
+                    "timeZone": locationData.timeZone,
+                    "facility": locationData.facility,
+                    "pool": locationData.pool
+                }
+                this.setState(data)
+            }
+
+            console.log("responseresponse", response)
         })
-     
+
     }
 
     componentDidMount() {
         if (this.props.locationId) {
-            console.log("this.props.locationId", this.props.locationId)
+            console.log("this.props.locationId", this.props.locationId);
+            this.getLocationData(this.props.locationId)
         }
     }
 
     render() {
-        // console.log("Add Location Props", this.props);
+        console.log("Add Location Props", this.state);
         return (
             <div className={this.state.showHideClassname}>
                 <div className="container">
@@ -136,8 +186,8 @@ class Modal extends Component {
                                 </div>
                             </form>
                             <div className="row text-center m-3">
-                                <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={this.props.handleClose} className="btn btn-danger border active px-4 py-3">Cancel</button> </div>
-                                <div className="col-6" style={{ "text-align-last": "left" }}><button onClick={this.saveLocation} className="btn btn-primary border px-4 py-3 ">Save</button></div>
+                                <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={this.props.handleClose}  className="btn btn-danger border active px-4 py-3">Cancel</button> </div>
+                                <div className="col-6" style={{ "text-align-last": "left" }}><button onClick={this.saveLocation}  className="btn btn-primary border px-4 py-3 ">Save</button></div>
                             </div>
 
                             {/* <p className="card-text text-center" style="font-size: 12px">By loggi ngin, you agree to MyWeb <a href="#" className="card-link">Terms of Service. Cookie Policy.<br />Privacy Policy</a> and <a href="#" className="card-link m-0">Content Policies</a></p> */}

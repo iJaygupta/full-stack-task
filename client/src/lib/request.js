@@ -59,15 +59,15 @@ const self = {
 			.then(function (response) {
 				self.reset();
 
-					if (response.data.error) {
-						toast.error(response.data.message, {
-							position: toast.POSITION.TOP_RIGHT
-						});
-					} else {
-						toast.success(response.data.message, {
-							position: toast.POSITION.TOP_RIGHT
-						});
-					}
+					// if (response.data.error) {
+					// 	toast.error(response.data.message, {
+					// 		position: toast.POSITION.TOP_RIGHT
+					// 	});
+					// } else {
+					// 	toast.success(response.data.message, {
+					// 		position: toast.POSITION.TOP_RIGHT
+					// 	});
+					// }
 
 				callback(response);
 			})

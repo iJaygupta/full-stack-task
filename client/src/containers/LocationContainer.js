@@ -21,7 +21,7 @@ class Location extends Component {
     }
 
     hideModal = () => {
-        this.setState({ isLocationModal: false });
+        this.setState({ isLocationModal: false, locationId: "" });
     };
 
     getLocationListing = () => {
@@ -29,7 +29,16 @@ class Location extends Component {
     }
 
     deleteLocation = (id) => {
-        this.props.locationAction.deleteLocation(id, () => {
+        this.props.locationAction.deleteLocation(id, (output) => {
+            if (output.error) {
+                toast.error(output.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                });
+            } else {
+                toast.success(output.message, {
+                    position: toast.POSITION.TOP_RIGHT
+                });
+            }
             this.getLocationListing();
         })
     }
@@ -46,20 +55,30 @@ class Location extends Component {
 
     }
 
+
+
     render() {
+
         console.log("Location Props", this.state)
 
         return (
-            <div className="main bg-light">
-                <ToastContainer autoClose={3000} />
-                <nav className="navbar navbar-light bg-light justify-content-between">
-                    <h2>Locations</h2>
-                    <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={() => { this.setState({ isLocationModal: true }) }} className="btn btn-primary border active px-4 py-3">Add Location</button> </div>
-                </nav>
-                <div className="container">
-                    {this.state.isLocationModal && <AddLocation show={this.state.isLocationModal} handleClose={this.hideModal} getLocationListing={this.getLocationListing} locationId={this.state.locationId}/>}
-                    {this.props.locationData && this.props.locationData.length && <LocationList data={this.props.locationData} deleteLocation={this.deleteLocation} updateLocation={this.updateLocation} />}
-                </div>
+            <div className="app">
+                <ToastContainer autoClose={3000} hideProgressBar pauseOnHover={false} />
+                <h1><strong>Locations </strong></h1>
+                <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={() => { this.setState({ isLocationModal: true }) }} style={{ "border-radius": "20px" }} className="btn btn-primary border active px-4 py-3">Add Location</button> </div>
+                {this.state.isLocationModal && <AddLocation show={this.state.isLocationModal} handleClose={this.hideModal} getLocationListing={this.getLocationListing} locationId={this.state.locationId} />}
+                {!(this.props.locationData && this.props.locationData.length || true) ?
+                    <div className="app no-data">
+                        <div class="app card text-center" style={{ "width": "18rem;" }}>
+                            <div class="app card-body">
+                                <img className="d-block m-auto" width="100px" height="100px" src="https://qss-assign.s3.ap-south-1.amazonaws.com/location.png" alt="Card image cap"></img>
+                                <p><strong>Kindly Add Your Location First</strong></p>
+                                <p class="card-text">There is no location added right now</p>
+                            </div>
+                        </div>
+                    </div>
+                    : ""}
+                {(this.props.locationData && this.props.locationData.length || true) ? <LocationList data={this.props.locationData} deleteLocation={this.deleteLocation} updateLocation={this.updateLocation} /> : ""}
 
             </div>
 

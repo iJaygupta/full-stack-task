@@ -39,3 +39,7 @@ exports[2003] = {
     code: 2003,
     message: "Location Deleted Successfully."
 };
+exports[2004] = {
+    code: 2004,
+    message: "Get Location Data Successfully."
+};

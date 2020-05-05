@@ -5,7 +5,7 @@ import apiPaths from '../../lib/api';
 
 const location = {
 
-    addLocation: function (data,callback) {
+    addLocation: function (data, callback) {
         return dispatch => {
             api.setMethod('POST').sendRequest(apiPaths.addLocation, data, false, function (response) {
                 callback(response.data);
@@ -33,15 +33,22 @@ const location = {
             }, dispatch)
         }
     },
-    getLocationData : function (id, callback) {
+    getLocationData: function (id, callback) {
         return dispatch => {
-            api.setMethod('DELETE').sendRequest(`${apiPaths.deleteLocation}?id=${id}`, null, false, function (response) {
+            api.setMethod('GET').sendRequest(`${apiPaths.getLocationData}${id}`, null, false, function (response) {
+                callback(response.data);
+            }, dispatch)
+        }
+    },
+    updateLocation: function (id, data, callback) {
+        return dispatch => {
+            api.setMethod('PUT').sendRequest(`${apiPaths.updateLocation}${id}`, data, false, function (response) {
                 callback(response.data);
             }, dispatch)
         }
     },
 
-    
+
 
 }
 

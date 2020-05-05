@@ -4,7 +4,7 @@ const resPerPage = process.env.RESULTS_PER_PAGE || 10;
 
 
 /**
- * Get List of Internet Service Provider.
+ * Get List of Locations.
  *
  * @param {string}      page
  * @param {string}      pagination
@@ -87,7 +87,7 @@ exports.addLocation = (request, response) => {
 exports.updateLocation = (request, response) => {
 
     Location.getModel().updateMany(
-        { _id: request.query.id },
+        { _id: request.params.id },
         { $set: request.body }
     ).then((result) => {
         sendResponse(response, false, 200, 2002, result);
@@ -116,6 +116,25 @@ exports.deleteLocation = (request, response) => {
     Location.getModel().deleteMany({ "_id": request.query.id })
         .then((result) => {
             sendResponse(response, false, 200, 2003, result);
+        })
+        .catch((error) => {
+            console.log(error)
+            sendResponse(response, true, 500, 4001, error);
+        })
+};
+
+/**
+ * Get Location.
+ *
+ *
+ * @returns {Object}
+ */
+
+exports.getLocation = (request, response) => {
+
+    Location.getModel().find({ "_id": request.params.id })
+        .then((result) => {
+            sendResponse(response, false, 200, 2004, result);
         })
         .catch((error) => {
             console.log(error)
