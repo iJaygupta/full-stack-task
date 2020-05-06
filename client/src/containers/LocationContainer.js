@@ -24,8 +24,8 @@ class Location extends Component {
         this.setState({ isLocationModal: false, locationId: "" });
     };
 
-    getLocationListing = () => {
-        this.props.locationAction.getLocationList();
+    getLocationListing = (filters) => {
+        this.props.locationAction.getLocationList(filters);
     }
 
     deleteLocation = (id) => {
@@ -59,7 +59,7 @@ class Location extends Component {
 
     render() {
 
-        console.log("Location Props", this.state)
+        console.log("Location Props", this.props)
 
         return (
             <div className="app">
@@ -67,7 +67,7 @@ class Location extends Component {
                 <h1><strong>Locations </strong></h1>
                 <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={() => { this.setState({ isLocationModal: true }) }} style={{ "border-radius": "20px" }} className="btn btn-primary border active px-4 py-3">Add Location</button> </div>
                 {this.state.isLocationModal && <AddLocation show={this.state.isLocationModal} handleClose={this.hideModal} getLocationListing={this.getLocationListing} locationId={this.state.locationId} />}
-                {!(this.props.locationData && this.props.locationData.length || true) ?
+                {(this.props.locationData && this.props.locationData.items && this.props.locationData.items.length == 0) ?
                     <div className="app no-data">
                         <div class="app card text-center" style={{ "width": "18rem;" }}>
                             <div class="app card-body">
@@ -78,7 +78,7 @@ class Location extends Component {
                         </div>
                     </div>
                     : ""}
-                {(this.props.locationData && this.props.locationData.length || true) ? <LocationList data={this.props.locationData} deleteLocation={this.deleteLocation} updateLocation={this.updateLocation} /> : ""}
+                {(this.props.locationData && this.props.locationData.totalRecords) ? <LocationList data={this.props.locationData} deleteLocation={this.deleteLocation} updateLocation={this.updateLocation} getLocationListing={this.getLocationListing} /> : ""}
 
             </div>
 

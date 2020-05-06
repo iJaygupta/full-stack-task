@@ -8,25 +8,49 @@ class LocationList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            isUpdateModal: false
+            isUpdateModal: false,
+            searchKeyword: "",
+            pagination: "",
+            page: "",
+            resPerPage: "",
+
         }
+    }
+
+    handlePageChange = (pageNumber) => {
+        this.setState({
+            page: pageNumber,
+            pagination: true,
+            resPerPage: this.state.resPerPage,
+            searchKeyword: this.state.searchKeyword.trim()
+        }, () => {
+            this.applyFilter()
+        });
+    }
+
+    applyFilter = () => {
+        let filters = {
+            pagination: this.state.pagination,
+            page: this.state.page,
+            resPerPage: this.state.resPerPage,
+            searchKeyword: this.state.searchKeyword.trim()
+        }
+        this.props.getLocationListing(filters)
     }
 
 
 
     render() {
-        let totalRecords = this.props.provider ? this.props.provider.totalRecords : ""
-        let totalResult = this.props.provider ? this.props.provider.totalResult : "";
-        let previousPage = this.props.provider && this.props.provider.pagination ? this.props.provider.pagination.previousPage : "";
-        let nextPage = this.props.provider && this.props.provider.pagination && this.props.provider.pagination ? this.props.provider.pagination.nextPage : 2;
+        let totalRecords = this.props.data ? this.props.data.totalRecords : ""
+        let totalResult = this.props.data ? this.props.data.totalResult : "";
+        let previousPage = this.props.data && this.props.data.pagination ? this.props.data.pagination.previousPage : "";
+        let nextPage = this.props.data && this.props.data.pagination && this.props.data.pagination.nextPage ? this.props.data.pagination.nextPage : "";
+        let totalPages = this.props.data && this.props.data.totalPages ? this.props.data.totalPages : 2;
+
         console.log("this.props ==>>", this.props);
 
-        let dummy =[{
-            "location" : "gurgaon",
-            "addressLine1" : "dummy",
-            "phoneNo" : 122222 
-        }]
-        let item = dummy.map((elem, i) => {
+
+        let item = this.props.data.items.map((elem, i) => {
             return (
 
                 <div className="rounded-block">
@@ -41,33 +65,31 @@ class LocationList extends Component {
                             {elem.phoneNo}
                         </div>
                         <div class="col-sm">
-                            <span onClick={() => { this.props.updateLocation(elem._id) }} class="glyphicon">&#x270f;</span>
+                            <span onClick={() => { this.props.updateLocation(elem._id) }} title="Edit" class="glyphicon">&#x270f;</span>
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                        <a onClick={() => { this.props.deleteLocation(elem._id) }} href="javascript:void(0);" className="view" title="View" data-toggle="tooltip"><i className="material-icons">&#xE417;</i></a>
+                        <a onClick={() => { this.props.deleteLocation(elem._id) }} href="javascript:void(0);" className="glyphicon glyphicon-trash" title="Delete" data-toggle="tooltip"><i className="fa fa-trash">&#xE417;</i></a>
                         </div>
 
 
                     </div>
                 </div>
-
-
-
-                // <tr>
-                //     <th scope="row">{i + 1}</th>
-                //     <td>{elem.location}</td>
-                //     <td>{elem.addressLine1}</td>
-                //     <td>{elem.phoneNo}</td>
-                //     <td>
-                //         <span onClick={() => { this.props.updateLocation(elem._id) }} class="glyphicon">&#x270f;</span>
-                //         &nbsp;&nbsp;&nbsp;&nbsp;
-                //         <a onClick={() => { this.props.deleteLocation(elem._id) }} href="javascript:void(0);" className="view" title="View" data-toggle="tooltip"><i className="material-icons">&#xE417;</i></a>
-                //     </td>
-                // </tr>
             )
-
         })
+        let pages = []
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push((
+                <li onClick={() => { this.handlePageChange(i) }} className="page-item"><a className="page-link" href="javascript:void(0);">{i}</a></li>
+            ))
+        }
+
+
         return (
             <div>
+                <nav className="rounded-block navbar navbar-light bg-light justify-content-between">
+                    <form className="search-box form-inline">
+                        <input id="table-serach" className="form-control mr-sm-2" type="search" placeholder="Search" onChange={this.searchProviders} aria-label="Search" />
+                    </form>
+                </nav>
                 <div className="rounded-block">
                     <div class="row">
                         <div class="col-sm">
@@ -100,17 +122,14 @@ class LocationList extends Component {
                             <div className="row container-fluid">
                                 <div className="col-sm-6">
                                     <ul className="pagination">  {/*justify-content-end */}
-                                        {previousPage && <li onClick={() => { this.handlePageChange(previousPage) }} className="page-item">
-                                            <a onClick={() => { this.handlePageChange(2) }} className="page-link" href="javascript:void(0);" aria-label="Previous">
+                                        {previousPage && <li className="page-item">
+                                            <a onClick={() => { this.handlePageChange(previousPage) }} className="page-link" href="javascript:void(0);" aria-label="Previous">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>}
-                                        <li onClick={() => { this.handlePageChange(1) }} className="page-item"><a className="page-link" href="javascript:void(0);">1</a></li>
-                                        <li onClick={() => { this.handlePageChange(2) }} className="page-item"><a className="page-link" href="javascript:void(0);">2</a></li>
-                                        <li onClick={() => { this.handlePageChange(3) }} className="page-item"><a className="page-link" href="javascript:void(0);">3</a></li>
-                                        <li onClick={() => { this.handlePageChange(4) }} className="page-item"><a className="page-link" href="javascript:void(0);">4</a></li>
+                                        {pages}
                                         {nextPage && <li onClick={() => { this.handlePageChange(nextPage) }} className="page-item">
-                                            <a className="page-link" href="#" aria-label="Next">
+                                            <a className="page-link" href="javascript:void(0);" aria-label="Next">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
                                         </li>}

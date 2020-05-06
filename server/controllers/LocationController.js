@@ -1,6 +1,5 @@
 const sendResponse = require("../utils/apiResponse").sendResponse;
 const Location = require("../models/location");
-const resPerPage = process.env.RESULTS_PER_PAGE || 10;
 
 
 /**
@@ -9,8 +8,6 @@ const resPerPage = process.env.RESULTS_PER_PAGE || 10;
  * @param {string}      page
  * @param {string}      pagination
  * @param {string}      searchKeyword 
- * @param {string}      orderBy
- * @param {string}      sortBy
  * @param {string}      limit
  * @param {string}      skip
  *
@@ -21,7 +18,10 @@ const resPerPage = process.env.RESULTS_PER_PAGE || 10;
 exports.listLocations = (request, response) => {
 
     let page = parseInt(request.query.page) || 1;
-    let sortBy, orderBy, limit, skip, searchKeyword;
+    let limit, skip, searchKeyword;
+    let resPerPage = parseInt(request.query.resPerPage) || 5;
+
+
 
     if (!(request.query.pagination && request.query.page)) {
         sortBy = request.query.sortBy;
@@ -33,10 +33,41 @@ exports.listLocations = (request, response) => {
         limit = resPerPage;
         skip = (page - 1) * resPerPage
     }
-
-    Location.getModel().find({})
+    let countQuery = Location.getModel().count();
+    Location.getModel()
+        .find({})
+        .limit(limit)
+        .skip(skip)
         .then(data => {
-            sendResponse(response, false, 200, 2000, data);
+            countQuery.then((countData) => {
+                let result = {
+                    "items": data,
+                    "totalRecords": countData,
+                    "totalResult": data.length,
+                    "pagination": !(request.query.pagination && request.query.page) ? false : "",
+                    "totalPages": Math.ceil(countData / resPerPage),
+                }
+                if (request.query.pagination && request.query.page) {
+                    result["pagination"] = {
+                        "totalRecords": countData,
+                        "totalPages": Math.ceil(countData / resPerPage),
+                        "currentPage": page,
+                        "resPerPage": resPerPage,
+                        "hasPrevPage": page > 1,
+                        "hasNextPage": page < Math.ceil(countData / resPerPage),
+                        "previousPage": page > 1 ? page - 1 : null,
+                        "nextPage": page < Math.ceil(countData / resPerPage) ? page + 1 : null
+                    }
+                } else {
+                    if (request.query.limit) {
+                        result["limit"] = limit
+                    }
+                    if (request.query.skip) {
+                        result["skip"] = skip
+                    }
+                }
+                sendResponse(response, false, 200, 2000, result);
+            })
         })
         .catch(error => {
             sendResponse(response, true, 500, 4001, error);
@@ -48,13 +79,7 @@ exports.listLocations = (request, response) => {
 /**
  * Add Location.
  *
- * @param {string}      page
- * @param {string}      pagination
- * @param {string}      searchKeyword 
- * @param {string}      orderBy
- * @param {string}      sortBy
- * @param {string}      limit
- * @param {string}      skip
+ * @param {Object}      payload
  *
  * @returns {Object}
  */
@@ -63,7 +88,7 @@ exports.addLocation = (request, response) => {
 
     Location.getModel().insertMany(request.body)
         .then(data => {
-            sendResponse(response, false, 200, 2001, data);
+            sendResponse(response, false, 200, 2001);
         })
         .catch(error => {
             sendResponse(response, true, 500, 4001, error);
@@ -73,13 +98,7 @@ exports.addLocation = (request, response) => {
 /**
  *   Update Location.
  *
- * @param {string}      page
- * @param {string}      pagination
- * @param {string}      searchKeyword 
- * @param {string}      orderBy
- * @param {string}      sortBy
- * @param {string}      limit
- * @param {string}      skip
+ * @param {string}      id
  *
  * @returns {Object}
  */
@@ -90,7 +109,7 @@ exports.updateLocation = (request, response) => {
         { _id: request.params.id },
         { $set: request.body }
     ).then((result) => {
-        sendResponse(response, false, 200, 2002, result);
+        sendResponse(response, false, 200, 2002);
     }).catch((error) => {
         sendResponse(response, true, 500, 4001, error);
     })
@@ -100,13 +119,7 @@ exports.updateLocation = (request, response) => {
 /**
  * Delete Location.
  *
- * @param {string}      page
- * @param {string}      pagination
- * @param {string}      searchKeyword 
- * @param {string}      orderBy
- * @param {string}      sortBy
- * @param {string}      limit
- * @param {string}      skip
+ * @param {string}      id
  *
  * @returns {Object}
  */
@@ -115,17 +128,17 @@ exports.deleteLocation = (request, response) => {
 
     Location.getModel().deleteMany({ "_id": request.query.id })
         .then((result) => {
-            sendResponse(response, false, 200, 2003, result);
+            sendResponse(response, false, 200, 2003);
         })
         .catch((error) => {
-            console.log(error)
-            sendResponse(response, true, 500, 4001, error);
+            sendResponse(response, true, 500, 4001);
         })
 };
 
 /**
  * Get Location.
- *
+ * 
+ * @param {string}      id
  *
  * @returns {Object}
  */
@@ -138,7 +151,7 @@ exports.getLocation = (request, response) => {
         })
         .catch((error) => {
             console.log(error)
-            sendResponse(response, true, 500, 4001, error);
+            sendResponse(response, true, 500, 4001);
         })
 };
 

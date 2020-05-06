@@ -1,5 +1,7 @@
 import api from '../../lib/request';
 import apiPaths from '../../lib/api';
+import buildUrl from '../../lib/utils';
+
 
 
 
@@ -12,16 +14,18 @@ const location = {
             }, dispatch)
         }
     },
-    getLocationList: function (callback) {
+    getLocationList: function (filters, callback) {
+        let listUrl = buildUrl(apiPaths.getLocationList, filters)
+
         return dispatch => {
-            api.setMethod('GET').sendRequest(apiPaths.getLocationList, null, false, function (response) {
+            api.setMethod('GET').sendRequest(listUrl, null, false, function (response) {
                 dispatch({
                     type: 'getLocationList',
                     error: response.data.error,
                     msg: response.data.msg,
                     data: response.data.data
                 });
-                callback(response.data);
+                // callback(response.data);
 
             }, dispatch)
         }
