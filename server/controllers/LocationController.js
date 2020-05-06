@@ -18,10 +18,13 @@ const Location = require("../models/location");
 exports.listLocations = (request, response) => {
 
     let page = parseInt(request.query.page) || 1;
-    let limit, skip, searchKeyword;
+    let limit, skip;
     let resPerPage = parseInt(request.query.resPerPage) || 5;
+    let sort = {};
 
-
+    if (request.query.sortBy && request.query.orderBy) {
+        sort[request.query.sortBy] = request.query.orderBy === 'desc' ? -1 : 1
+    }
 
     if (!(request.query.pagination && request.query.page)) {
         sortBy = request.query.sortBy;
@@ -33,40 +36,48 @@ exports.listLocations = (request, response) => {
         limit = resPerPage;
         skip = (page - 1) * resPerPage
     }
+
+
     let countQuery = Location.getModel().count();
+
     Location.getModel()
         .find({})
         .limit(limit)
         .skip(skip)
+        .sort(sort)
         .then(data => {
             countQuery.then((countData) => {
-                let result = {
-                    "items": data,
-                    "totalRecords": countData,
-                    "totalResult": data.length,
-                    "pagination": !(request.query.pagination && request.query.page) ? false : "",
-                    "totalPages": Math.ceil(countData / resPerPage),
-                }
-                if (request.query.pagination && request.query.page) {
-                    result["pagination"] = {
+                if (data && data.length) {
+                    let result = {
+                        "items": data,
                         "totalRecords": countData,
+                        "totalResult": data.length,
+                        "pagination": !(request.query.pagination && request.query.page) ? false : "",
                         "totalPages": Math.ceil(countData / resPerPage),
-                        "currentPage": page,
-                        "resPerPage": resPerPage,
-                        "hasPrevPage": page > 1,
-                        "hasNextPage": page < Math.ceil(countData / resPerPage),
-                        "previousPage": page > 1 ? page - 1 : null,
-                        "nextPage": page < Math.ceil(countData / resPerPage) ? page + 1 : null
                     }
-                } else {
-                    if (request.query.limit) {
-                        result["limit"] = limit
+                    if (request.query.pagination && request.query.page) {
+                        result["pagination"] = {
+                            "totalRecords": countData,
+                            "totalPages": Math.ceil(countData / resPerPage),
+                            "currentPage": page,
+                            "resPerPage": resPerPage,
+                            "hasPrevPage": page > 1,
+                            "hasNextPage": page < Math.ceil(countData / resPerPage),
+                            "previousPage": page > 1 ? page - 1 : null,
+                            "nextPage": page < Math.ceil(countData / resPerPage) ? page + 1 : null
+                        }
+                    } else {
+                        if (request.query.limit) {
+                            result["limit"] = limit
+                        }
+                        if (request.query.skip) {
+                            result["skip"] = skip
+                        }
                     }
-                    if (request.query.skip) {
-                        result["skip"] = skip
-                    }
+                    sendResponse(response, false, 200, 2000, result);
+                }else{
+                    sendResponse(response, false, 200, 4002);
                 }
-                sendResponse(response, false, 200, 2000, result);
             })
         })
         .catch(error => {
@@ -150,7 +161,6 @@ exports.getLocation = (request, response) => {
             sendResponse(response, false, 200, 2004, result);
         })
         .catch((error) => {
-            console.log(error)
             sendResponse(response, true, 500, 4001);
         })
 };

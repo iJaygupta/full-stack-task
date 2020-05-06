@@ -54,23 +54,22 @@ class LocationList extends Component {
             return (
 
                 <div className="rounded-block">
-                    <div class="row">
-                        <div class="col-sm">
+                    <div class="pt-3 row">
+                        <div class="col-sm text-center">
                             {elem.location}
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm text-center">
                             {elem.addressLine1}
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm text-center">
                             {elem.phoneNo}
                         </div>
-                        <div class="col-sm">
-                            <span onClick={() => { this.props.updateLocation(elem._id) }} title="Edit" class="glyphicon">&#x270f;</span>
+                        <div class="col-sm text-center">
+                            <span onClick={() => { this.props.updateLocation(elem._id) }} title="Edit" >&#x270f;</span>
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                        <a onClick={() => { this.props.deleteLocation(elem._id) }} href="javascript:void(0);" className="glyphicon glyphicon-trash" title="Delete" data-toggle="tooltip"><i className="fa fa-trash">&#xE417;</i></a>
+                         <span onClick={() => { this.props.deleteLocation(elem._id) }} title="Delete" ><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></span>
+                        
                         </div>
-
-
                     </div>
                 </div>
             )
@@ -85,23 +84,18 @@ class LocationList extends Component {
 
         return (
             <div>
-                <nav className="rounded-block navbar navbar-light bg-light justify-content-between">
-                    <form className="search-box form-inline">
-                        <input id="table-serach" className="form-control mr-sm-2" type="search" placeholder="Search" onChange={this.searchProviders} aria-label="Search" />
-                    </form>
-                </nav>
                 <div className="rounded-block">
                     <div class="row">
-                        <div class="col-sm">
+                        <div class="col-sm text-center">
                             <h1><strong> &nbsp; &nbsp; &nbsp; &nbsp;Location Name </strong></h1>
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm text-center">    
                             <h1><strong> Address </strong></h1>
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm text-center">
                             <h1><strong>Phone No. </strong></h1>
                         </div>
-                        <div class="col-sm">
+                        <div class="col-sm text-center">
                             <h1><strong>Actions </strong></h1>
                         </div>
 
@@ -110,25 +104,25 @@ class LocationList extends Component {
                 </div>
 
                 {item}
-                <div className="rounded-block">
+                <div className="clear-fix rounded-block">
                     <div class="row">
-                        <div class="col-sm">
-
+                        
+                       <div class="col-sm-6  pt-1 text-center">
+                            <div className="hint-text float-right">Showing <b>{totalResult}</b> out of <b>{totalRecords}</b> entries</div><br />
                         </div>
-                        <div class="col-sm">
-                            <div className="hint-text">Showing <b>{totalResult}</b> out of <b>{totalRecords}</b> entries</div><br />
-                        </div>
-                        <div class="col-sm">
+                        <div class="col-sm-6 text-center">
                             <div className="row container-fluid">
                                 <div className="col-sm-6">
                                     <ul className="pagination">  {/*justify-content-end */}
-                                        {previousPage && <li className="page-item">
+                                        {previousPage && 
+                                        <li className="page-item">
                                             <a onClick={() => { this.handlePageChange(previousPage) }} className="page-link" href="javascript:void(0);" aria-label="Previous">
                                                 <span aria-hidden="true">&laquo;</span>
                                             </a>
                                         </li>}
                                         {pages}
-                                        {nextPage && <li onClick={() => { this.handlePageChange(nextPage) }} className="page-item">
+                                        {nextPage && 
+                                        <li onClick={() => { this.handlePageChange(nextPage) }} className="page-item">
                                             <a className="page-link" href="javascript:void(0);" aria-label="Next">
                                                 <span aria-hidden="true">&raquo;</span>
                                             </a>
@@ -136,13 +130,8 @@ class LocationList extends Component {
                                     </ul>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm">
-
-                        </div>
-
-
-                    </div>
+                        </div><br/>
+                     </div>
                 </div>
             </div>
         )

@@ -62,15 +62,17 @@ class Location extends Component {
         console.log("Location Props", this.props)
 
         return (
-            <div className="app">
+            <div className="app container-fluid">
                 <ToastContainer autoClose={3000} hideProgressBar pauseOnHover={false} />
-                <h1><strong>Locations </strong></h1>
-                <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={() => { this.setState({ isLocationModal: true }) }} style={{ "border-radius": "20px" }} className="btn btn-primary border active px-4 py-3">Add Location</button> </div>
-                {this.state.isLocationModal && <AddLocation show={this.state.isLocationModal} handleClose={this.hideModal} getLocationListing={this.getLocationListing} locationId={this.state.locationId} />}
-                {(this.props.locationData && this.props.locationData.items && this.props.locationData.items.length == 0) ?
-                    <div className="app no-data">
-                        <div class="app card text-center" style={{ "width": "18rem;" }}>
-                            <div class="app card-body">
+                <div class="row">
+					<h1 class="col-sm-6"><strong>Locations </strong></h1>
+					<div className="col-sm-6 mt-2" style={{ "text-align-last": "right" }}><button onClick={() => { this.setState({ isLocationModal: true }) }} style={{ "border-radius": "20px" }} className="btn btn-primary border active px-4 py-3">Add Location</button> </div>
+                </div>
+				{this.state.isLocationModal && <AddLocation show={this.state.isLocationModal} handleClose={this.hideModal} getLocationListing={this.getLocationListing} locationId={this.state.locationId} />}
+                {!(this.props.locationData && this.props.locationData.items) ?
+                    <div className="no-data container-fluid">
+                        <div class="text-center" style={{ "width": "18rem;" }}>
+                            <div class="map">
                                 <img className="d-block m-auto" width="100px" height="100px" src="https://qss-assign.s3.ap-south-1.amazonaws.com/location.png" alt="Card image cap"></img>
                                 <p><strong>Kindly Add Your Location First</strong></p>
                                 <p class="card-text">There is no location added right now</p>
@@ -106,4 +108,3 @@ function mapDispatchToProps(dispatch) {
 
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Location))
-

@@ -7,65 +7,54 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-describe('Ping', function () {
-    it('should return provider list on /api/provider/list', function (done) {
-        console.log(server)
+describe('Add Location', function () {
+    it(`should return location list on /api/location/${process.env.id} GET`, function (done) {
         chai.request(server)
-            .get('/api/provider/list')
+            .post(`/api/location/add`)
+            .send({"location":"Gurgaon","addressLine1":"D-69","suiteNo":"Near Radha Krishna Mandir","addressLine2":"Near Radha Krishna Mandir","city":"Pandav Nagar, New Delhi","state":"","zipCode":"110092","phoneNo":"(088) 089 - 7426","timeZone":"","facility":"","pool":""})
             .end(function (err, res) {
-                console.log("data ==>>", res)
-                // res.should.have.status(200);
-                // res.should.be.json;
-                // res.body.should.be.a('object');
-                // res.body.should.have.property('data');
-                // res.body.data.should.have.property('items');
-                // res.body.data.items.should.be.a('array');
-                // res.body.data.should.equal('pong');
-                // done();
+                res.should.have.status(200);
+                done();
             });
     });
 });
 
-// describe('Info', function () {
-//   it('should return error on  /metar/info GET', function (done) {
-//     chai.request(server)
-//       .get('/metar/info')
-//       .end(function(err,res) {
-//         res.should.have.status(404);
-//         res.should.be.json;
-//         res.body.should.be.a('object');
-//         res.body.should.have.property('error');
-//         res.body.error.should.be.a('object');
-//         res.body.error.should.have.property('message');
-//         res.body.error.message.should.equal('query param scode is missing');
-//         done();
-//       });
-//   });
+describe('Location Listing API', function () {
+    it('should return location list on /api/location/list GET', function (done) {
+        chai.request(server)
+            .get('/api/location/list')
+            .end(function (err, res) {
+                process.env.id = res.body && res.body.data && res.body.data.items && res.body.data.items.length ? res.body.data.items[0]._id : ""
+                res.should.have.status(200);
+                res.should.be.json;
+                res.body.should.be.a('object');
+                res.body.should.have.property('data');
+                res.body.data.should.be.a('object');
+                done();
+            });
+    });
+});
 
-//   it('should return error weather json data  /metar/info?scode=ANJA GET', function (done) {
-//     chai.request(server)
-//       .get('/metar/info?scode=ANJA')
-//       .end(function(err,res) {
-//         res.should.have.status(200);
-//         res.should.be.json;
-//         res.body.should.be.a('object');
-//         res.body.should.have.property('data');
-//         res.body.data.should.be.a('object');
-//         res.body.data.should.have.property('station');
-//         res.body.data.station.should.equal('ANJA');
-//         done();
-//       });
-//   });
+describe('Get Location By Id', function () {
+    it(`should return location list on /api/location/${process.env.id} GET`, function (done) {
+        chai.request(server)
+            .get(`/api/location/${process.env.id}`)
+            .end(function (err, res) {
+                res.should.have.status(200);
+                done();
+            });
+    });
+});
 
-//   it('should return status 200 for all station request', function (done) {
-//     let stations = ['AGGH', 'AGGL', 'AGGM', 'ANAU', 'AYMD', 'AYMO', 'AYPY', 'AYWK', 'BGAM', 'BGAS', 'BGAT', 'BGBW', 'BGCO', 'BGDB', 'BGDH', 'BGEM', 'BGFH', 'BGGD', 'BGGH', 'BGHB', 'BGJH', 'BGJN', 'BGKK', 'BGKT']
-//     for(let i=0; i< stations.length; i++){
-//       chai.request(server)
-//         .get('/metar/info?scode='+stations[i])
-//         .end(function(err,res){
-//           res.should.have.status(200);
-//           done();
-//         });
-//     }
-//   });
-// });
+describe('Delete Location', function () {
+    it(`should return location list on /api/location/${process.env.id} GET`, function (done) {
+        chai.request(server)
+            .delete(`/api/location/delete?id=${process.env.id}`)
+            .end(function (err, res) {
+                res.should.have.status(200);
+                done();
+            });
+    });
+});
+
+

@@ -1,24 +1,26 @@
 .rounded-block {
-    width: 100%;
-    height: 40px;
-    background-color: white;
-    border-radius: 100px / 60px;
-    margin: 10px
-  }
-
- .rounded-block-bottom{
-    width: 100%;
-    height: 50px;
-    background-color: wheat;
-    border-radius: 100px / 60px;
-    margin: 10px;
-    text-align: center;
-
+   width: 100%;
+   height: 40px;
+   background-color: white;
+   border-radius: 30px;
+   margin: 10px
  }
- 
- .pos-item{
+
+.rounded-block-bottom{
+   width: 100%;
+   height: 50px;
+   background-color: wheat;
+   border-radius: 30px;
+   margin: 10px;
+   text-align: center;
+}
+
+.pos-item{
 text-align: center;
 margin-left: 60px;
 font-size: 120%;
-   
- } 
+  
+} 
+span{
+  cursor:pointer;
+}

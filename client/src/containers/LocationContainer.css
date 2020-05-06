@@ -1,15 +1,14 @@
 .app{
     background-color: lavender;
-    background: lavender  no-repeat center;
-    position: absolute;
-    height: 100%;
+    
+    position: relative;
+    height: 705px;
     width: 100%;
 
 }
-
-
-.no-data{
-   
-
-
+.no-data {
+    min-height: 1px;
+}
+.map{
+    padding-top:140px;
 }
