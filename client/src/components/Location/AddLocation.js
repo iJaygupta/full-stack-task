@@ -26,20 +26,74 @@ class Modal extends Component {
             timeZone: "",
             facility: "",
             pool: "",
+            errorParam: {
+                location: false,
+                city: false,
+                state: false,
+                zipCode: false,
+                phoneNo: false,
+                timeZone: false,
+            }
         }
     }
 
     updateState = (e) => {
+
         const { name, value } = e.target;
-        this.setState({ [name]: value });
+        this.setState({ [name]: value.trimLeft() }, () => {
+            let data = this.state;
+            let errorParam = { ...this.state.errorParam };
+            if (name == 'location' && data[name] == "") {
+                errorParam[name] = true
+            } else if (name == 'location') {
+                errorParam[name] = false
+            }
+
+            if ((name == 'zipCode' && data[name] != "") && (data[name].length < 5 || !data[name].match(/^[a-zA-Z0-9]+$/))) {
+                errorParam[name] = true
+            } else if (name == 'zipCode') {
+                errorParam[name] = false
+            }
+
+            this.setState({ errorParam: errorParam })
+
+        });
+
     };
 
     validateData = (callback) => {
-        callback();
+
+        let errorParam = { ...this.state.errorParam }
+        let flag = false;
+        let data = this.state;
+        let formData = this.state.errorParam
+        for (const key in formData) {
+            if (key == 'location' && data[key] == "") {
+                errorParam[key] = true
+                flag = true
+            }
+            if ((key == 'zipCode' && data[key] != "") && (data[key].length < 5 || !data[key].match(/^[a-zA-Z0-9]+$/))) {
+                errorParam[key] = true
+                flag = true
+            }
+            if ((key == 'phoneNo' && data[key] != "") && (data[key].length < 16 )) {
+                errorParam[key] = true
+                flag = true
+            }
+        }
+        this.setState({ errorParam: errorParam })
+
+        return flag;
+    }
+
+    submitInputHandler = (callback) => {
+        if (!this.validateData()) {
+            callback();
+        }
     }
 
     saveLocation = () => {
-        this.validateData(() => {
+        this.submitInputHandler(() => {
             let data = {
                 "location": this.state.location,
                 "addressLine1": this.state.addressLine1,
@@ -82,8 +136,6 @@ class Modal extends Component {
                     this.props.getLocationListing()
                 })
             }
-
-
         })
     }
 
@@ -121,8 +173,51 @@ class Modal extends Component {
         }
     }
 
+    phoneFormat = (e) => {
+        const { name, value } = e.target;
+        let input = value
+
+       
+        // Strip all characters from the input except digits
+        input = input.replace(/\D/g, '');
+
+        // Trim the remaining input to ten characters, to preserve phone number format
+        input = input.substring(0, 10);
+
+        // Based upon the length of the string, we add formatting as necessary
+        var size = input.length;
+        if (size == 0) {
+            input = input;
+        } else if (size < 4) {
+            input = '(' + input;
+        } else if (size < 7) {
+            input = '(' + input.substring(0, 3) + ') ' + input.substring(3, 6);
+        } else {
+            input = '(' + input.substring(0, 3) + ') ' + input.substring(3, 6) + ' - ' + input.substring(6, 10);
+        }
+
+        this.setState({ [name]: input}, ()=>{
+         
+            let data = this.state;
+            let errorParam = { ...this.state.errorParam };
+
+            if (data[name] == "") {
+                errorParam[name] = false
+            } else if (data[name].length != 16 ) {
+                errorParam[name] = true
+            } else if (name == 'phoneNo') {
+                errorParam[name] = false
+            }
+
+            this.setState({ errorParam: errorParam })
+
+        })
+
+    }
+
     render() {
-        console.log("Add Location Props", this.state);
+        // console.log("Add Location Props", this.state);
+
         return (
             <div className={this.state.showHideClassname}>
                 <div className="container">
@@ -134,6 +229,7 @@ class Modal extends Component {
                                 <div class="form-group">
                                     <label for="location">Location</label>
                                     <input name="location" type="text" class="form-control" id="location" value={this.state.location} onChange={this.updateState} />
+                                    <span className="errorMsg">{this.state.errorParam['location'] ? "Location is required" : ""}</span>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-6">
@@ -156,21 +252,42 @@ class Modal extends Component {
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="state">State</label>
-                                        <input name="state" type="text" class="form-control" id="state" value={this.state.state} onChange={this.updateState} />
+                                        <select name="state" id="state" class="form-control" value={this.state.state} onChange={this.updateState}>
+                                            <option value="">Select State</option>
+                                            <option value="AK">Alaska</option>
+                                            <option value="AZ">Arizona</option>
+                                            <option value="CA">California</option>
+                                            <option value="NY">New York</option>
+                                            <option value="VA">Virginia</option>
+                                            <option value="WA">Washington</option>
+                                            <option value="TX">Texas</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group col-md-3">
                                         <label for="zipCode">Zip Code</label>
-                                        <input name="zipCode" type="text" class="form-control" id="zipCode" value={this.state.zipCode} onChange={this.updateState} />
+                                        <input name="zipCode" type="text" class="form-control" id="zipCode" value={this.state.zipCode} onChange={this.updateState} placeholder="Alpha Numeric" maxlength="10" />
+                                        <span className="errorMsg">{this.state.errorParam['zipCode'] ? "Zip Code is not valid" : ""}</span>
                                     </div>
                                     <div class="form-group col-md-3">
                                         <label for="phoneNo">Phone Number</label>
-                                        <input name="phoneNo" type="text" class="form-control" id="phoneNo" value={this.state.phoneNo} onChange={this.updateState} />
+                                        <input name="phoneNo" type="text" class="form-control" id="phoneNo" value={this.state.phoneNo} onChange={this.phoneFormat} />
+                                        <span className="errorMsg">{this.state.errorParam['phoneNo'] ? "Phone is not valid" : ""}</span>
                                     </div>
                                     <div class="form-group col-md-6">
                                         <label for="timeZone">Time Zone</label>
-                                        <input name="timeZone" type="text" class="form-control" id="timeZone" value={this.state.timeZone} onChange={this.updateState} />
+                                        <select name="timeZone" id="timeZone" class="form-control" value={this.state.timeZone} onChange={this.updateState}>
+                                            <option value="">Select Time Zone </option>
+                                            <option value="ST">ST</option>
+                                            <option value="HT">HT</option>
+                                            <option value="AKT">AKT</option>
+                                            <option value="PT">PT</option>
+                                            <option value="MT">MT</option>
+                                            <option value="CT">CT</option>
+                                            <option value="ET">ET</option>
+                                            <option value="AST">AST</option>
+                                        </select>
                                     </div>
 
                                 </div>
@@ -186,11 +303,9 @@ class Modal extends Component {
                                 </div>
                             </form>
                             <div className="row text-center m-3">
-                                <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={this.props.handleClose}  className="btn btn-danger border active px-4 py-3">Cancel</button> </div>
-                                <div className="col-6" style={{ "text-align-last": "left" }}><button onClick={this.saveLocation}  className="btn btn-primary border px-4 py-3 ">Save</button></div>
+                                <div className="col-6" style={{ "text-align-last": "right" }}><button onClick={this.props.handleClose} className="btn btn-danger border active px-4 py-3">Cancel</button> </div>
+                                <div className="col-6" style={{ "text-align-last": "left" }}><button onClick={this.saveLocation} className="btn btn-primary border px-4 py-3 ">{this.props.locationId ? "Update" : "Save"}</button></div>
                             </div>
-
-                            {/* <p className="card-text text-center" style="font-size: 12px">By loggi ngin, you agree to MyWeb <a href="#" className="card-link">Terms of Service. Cookie Policy.<br />Privacy Policy</a> and <a href="#" className="card-link m-0">Content Policies</a></p> */}
                         </div>
                     </div>
                 </div>

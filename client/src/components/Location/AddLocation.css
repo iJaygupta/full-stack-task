@@ -52,3 +52,7 @@
         max-width: 650px !important;
     }
   }
+
+  .errorMsg{
+    color: red
+  }
